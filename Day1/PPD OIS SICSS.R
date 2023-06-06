@@ -3,6 +3,8 @@ pacman::p_load("lubridate","pdftools","jsonlite","leaflet",install = T)
 
 setwd("~/Desktop/SICSS")
 
+~/Desktop/SICSS/SICSS-data-sessions/SICSS/Day1
+
 #############################################################################
 # scrape basic information
 #############################################################################
