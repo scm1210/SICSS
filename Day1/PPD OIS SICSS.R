@@ -1,4 +1,4 @@
-library(pacman)
+library(pacman) #load in this to make things easy
 pacman::p_load("lubridate","pdftools","jsonlite","leaflet",install = T)
 
 setwd("~/Desktop/SICSS")
