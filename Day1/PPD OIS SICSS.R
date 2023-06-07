@@ -1,9 +1,8 @@
 library(pacman) #load in this to make things easy
 pacman::p_load("lubridate","pdftools","jsonlite","leaflet",install = T)
 
-setwd("~/Desktop/SICSS")
+setwd("~/Desktop/SICSS/SICSS-data-sessions/Day1")
 
-~/Desktop/SICSS/SICSS-data-sessions/SICSS/Day1
 
 #############################################################################
 # scrape basic information
@@ -15,19 +14,19 @@ setwd("~/Desktop/SICSS")
 a <- scan(file="Officer Involved Shootings _ Philadelphia Police Department.html",
           what="",sep="\n")
 
-a[1:20]
-a[6000:6020]
+a[1:20] #lines 1-20
+a[6000:6020] #lines 6k-6020
 
 # extract the incident ID
 i <- grep("o\\.title", a)
 head(a[i])
-gsub("<[^>]*>","",a[i])
+gsub("<[^>]*>","",a[i]) #removing html tags replace with nothing
 
 # two lines later is the location
-gsub("<[^>]*>","",a[i+2])
+gsub("<[^>]*>","",a[i+2]) #removing html tags ok replace things two lines later 
 
 # three lines later is the date
-gsub("<[^>]*>","",a[i+3])
+gsub("<[^>]*>","",a[i+3]) #removing html tags ok replace 3 lines later 
 
 # also get the URL with the text description
 gsub('.* href="([^"]*)".*',"\\1",a[i])
@@ -47,15 +46,13 @@ ois <- subset(ois, !is.na(date) & date >= "2016-01-01")
 # check for duplicates
 any(duplicated(ois$id))
 subset(ois, duplicated(id))
-subset(ois, id=="17-13")
+subset(ois, id=="17-13") #drop the duplicate 
 # remove duplicate
 ois <- subset(ois, !duplicated(id))
 
 # another duplicate is missing ID
 subset(ois, grepl("Carlisle", location))
-ois <- subset(ois, id!="")
-
-
+ois <- subset(ois, id!="") #removing one with the duplicate ID 
 
 #############################################################################
 # get text descriptions of incidents
@@ -65,8 +62,8 @@ ois <- subset(ois, id!="")
 ois$url[1] # try viewing in browser, view source
 a <- scan(ois$url[1], what="", sep="\n")
 
-iStart <- grep("entry-content clearfix", a) + 1
-iEnd   <- grep("\\.entry-content", a)       - 1
+iStart <- grep("entry-content clearfix", a) + 1 # header wrapper
+iEnd   <- grep("\\.entry-content", a)       - 1 # footer wrapper
 a <- paste(a[iStart:iEnd], collapse="\n")
 a <- gsub("<[^>]*>", "", a)
 a
@@ -92,7 +89,7 @@ for(i in 1:nrow(ois))
     ois$text[i] <- a
   } else
   {
-    cat("No text for ",ois$id[i],"\n")
+    cat("No text for ",ois$id[i],"\n") #tells us that theres no text descriptions 
   }
 }
 
@@ -126,8 +123,8 @@ ois$location <- gsub("&amp;","and",ois$location)
 
 # put "blocks" at the midpoint
 grep("[Bb]lock", ois$location, value=TRUE)
-ois$location <- gsub("00 [Bb]lock( of)?", "50", ois$location)
-ois$location <- gsub("[Uu]nit [Bb]lock( of)?", "50", ois$location)
+ois$location <- gsub("00 [Bb]lock( of)?", "50", ois$location) #puts it in the middle of the block (50 = middle of the block) and accounting for upper and lower case brackets
+ois$location <- gsub("[Uu]nit [Bb]lock( of)?", "50", ois$location) # and some that are the unit block of 
 # additional cleanup
 ois$location <- gsub("[Nn]ear ", "", ois$location)
 
@@ -202,7 +199,7 @@ ois$location[ois$id=="16-30"] <- "4850 Sansom Street"
 ois$location <- paste0(ois$location,", Philadelphia, PA")
 
 
-# time to geocode
+# time to geocode for each observation 
 a <- geocodeARCGIS(ois$location[1])
 
 ois$addrtype <- ois$score <- ois$addrmatch <- ois$lat <- ois$lon <- NA
@@ -235,7 +232,7 @@ leaflet(ois[i,c("lon","lat")]) |>
 
 
 # lookup on Google Maps for #21-14
-ois[ois$id=="21-14", c("lat","lon")] <- c(39.975984, -75.203309)
+ois[ois$id=="21-14", c("lat","lon")] <- c(39.975984, -75.203309) #adjusting something that isnt correct
 
 
 # spot check a few
